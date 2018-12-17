@@ -10,11 +10,11 @@ from utils.metrics import scores
 import torchvision.transforms as transforms
 from utils.transforms import RandomSizedCrop, IgnoreLabelClass, ToTensorLabel, NormalizeOwn, ZeroPadding
 from torchvision.transforms import ToTensor,Compose
-
+from tqdm import tqdm
 def val(model,valoader,nclass=21,nogpu=False):
     model.eval()
     gts, preds = [], []
-    for img_id, (img,gt_mask,_) in enumerate(valoader):
+    for img_id, (img,gt_mask,_) in tqdm(enumerate(valoader)):
         gt_mask = gt_mask.numpy()[0]
         if nogpu:
             img = Variable(img,volatile=True)
@@ -34,5 +34,6 @@ def val(model,valoader,nclass=21,nogpu=False):
             gts.append(gt_)
             preds.append(pred_)
     miou, _ = scores(gts, preds, n_class = nclass)
+    model.train()
 
     return miou
